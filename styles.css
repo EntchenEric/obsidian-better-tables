@@ -1,0 +1,31 @@
+/* BetterTable Plugin Styles */
+.better-table-wrapper {
+    margin: 16px 0;
+}
+
+.better-table-container {
+    font-family: var(--font-interface);
+}
+
+/* Ensure proper scrolling */
+.better-table-scroll-container {
+    scrollbar-width: thin;
+    scrollbar-color: var(--background-modifier-border) var(--background-secondary);
+}
+
+/* Focus states */
+.better-table-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px var(--accent-color-muted);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .better-table-scroll-container {
+        max-height: 50vh;
+    }
+    
+    .better-table {
+        min-width: 300px;
+    }
+}
