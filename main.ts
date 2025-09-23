@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, Plugin, PluginSettingTab, Setting, MarkdownPostProcessorContext } from 'obsidian';
+import { App, Editor, MarkdownView, Plugin, PluginSettingTab, Setting, MarkdownPostProcessorContext, MarkdownRenderChild } from 'obsidian';
 import * as React from 'react';
 import { Root, createRoot } from 'react-dom/client';
 import { BetterTable } from './components/BetterTable';
@@ -8,6 +8,63 @@ import { parseTableData, tableDataToCode } from './utils/tableUtils';
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
     mySetting: 'default'
+};
+
+class BetterTableRenderChild extends MarkdownRenderChild {
+    private root: Root;
+    private plugin: BetterTablePlugin;
+    private data: TableData;
+    private ctx: MarkdownPostProcessorContext;
+
+    constructor(
+        containerEl: HTMLElement, 
+        plugin: BetterTablePlugin, 
+        data: TableData, 
+        ctx: MarkdownPostProcessorContext
+    ) {
+        super(containerEl);
+        this.plugin = plugin;
+        this.data = data;
+        this.ctx = ctx;
+    }
+
+    onload() {
+        try {
+            this.containerEl.empty();
+            this.containerEl.addClass('better-table-wrapper');
+            
+            this.root = createRoot(this.containerEl);
+            
+            this.root.render(
+                React.createElement(React.StrictMode, {}, 
+                    React.createElement(AppContext.Provider, { value: this.plugin.app }, 
+                        React.createElement(BetterTable, {
+                            data: this.data,
+                            onSave: (newData: TableData) => this.plugin.saveTableData(newData, this.ctx, this.containerEl),
+                            onAddRow: () => this.plugin.addRow(this.data, this.ctx, this.containerEl),
+                            onAddColumn: () => this.plugin.addColumn(this.data, this.ctx, this.containerEl)
+                        })
+                    )
+                )
+            );
+        } catch (error) {
+            console.error('Failed to render better table:', error);
+            this.containerEl.createEl('div', { 
+                text: 'Error: Failed to render table. Check console for details.',
+                cls: 'better-table-error'
+            });
+        }
+    }
+
+    onunload() {
+        try {
+            if (this.root) {
+                this.root.unmount();
+            }
+        } catch (error) {
+            console.error('Error during React cleanup:', error);
+        }
+    }
 }
 
 export default class BetterTablePlugin extends Plugin {
@@ -24,108 +81,103 @@ export default class BetterTablePlugin extends Plugin {
             id: 'create-better-table',
             name: 'Create Better Table',
             editorCallback: (editor: Editor, view: MarkdownView) => {
-                const defaultData: TableData = {
-                    headers: ['Column 1', 'Column 2'],
-                    rows: [['', '']]
-                };
-                const tableCode = tableDataToCode(defaultData);
-                const tableMarkdown = `\`\`\`better-table\n${tableCode}\n\`\`\``;
-                
-                editor.replaceSelection(tableMarkdown);
-                
-                setTimeout(() => {
-                    const leaf = this.app.workspace.activeLeaf;
-                    if (leaf && leaf.view instanceof MarkdownView) {
-                        //@ts-ignore
-                        leaf.view.setState({
-                            ...leaf.view.getState(),
-                            mode: 'preview'
-                        });
-                        setTimeout(() => {
-                            //@ts-ignore
-                            leaf.view.setState({
-                                ...leaf.view.getState(),
-                                mode: 'source'
-                            });
-                        }, 100);
-                    }
-                }, 50);
+                try {
+                    const defaultData: TableData = {
+                        headers: ['Column 1', 'Column 2'],
+                        rows: [['', '']]
+                    };
+                    const tableCode = tableDataToCode(defaultData);
+                    const tableMarkdown = `\`\`\`better-table\n${tableCode}\n\`\`\``;
+                    
+                    editor.replaceSelection(tableMarkdown);
+                    
+                    this.refreshView(view);
+                } catch (error) {
+                    console.error('Failed to create better table:', error);
+                }
             }
         });
 
-        this.addSettingTab(new SampleSettingTab(this.app, this));
+        this.addSettingTab(new BetterTableSettingTab(this.app, this));
+    }
+
+    private refreshView(view: MarkdownView) {
+        const currentMode = view.getMode();
+        if (currentMode === 'source') {
+            view.setEphemeralState({ focus: true });
+            requestAnimationFrame(() => {
+                view.setState({ mode: 'preview' }, { history: false });
+                requestAnimationFrame(() => {
+                    view.setState({ mode: 'source' }, { history: false });
+                });
+            });
+        }
     }
 
     renderBetterTable(source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
-        const data = parseTableData(source);
-        
-        el.empty();
-        el.addClass('better-table-wrapper');
-        
-        const root = createRoot(el);
-        
-        root.render(
-            React.createElement(React.StrictMode, {}, 
-                React.createElement(AppContext.Provider, { value: this.app }, 
-                    React.createElement(BetterTable, {
-                        data: data,
-                        onSave: (newData: any) => this.saveTableData(newData, ctx, el),
-                        onAddRow: () => this.addRow(data, ctx, el),
-                        onAddColumn: () => this.addColumn(data, ctx, el)
-                    })
-                )
-            )
-        );
-
-        (el as any).__reactRoot = root;
+        try {
+            const data = parseTableData(source);
+            
+            const renderChild = new BetterTableRenderChild(el, this, data, ctx);
+            ctx.addChild(renderChild);
+            
+        } catch (error) {
+            console.error('Failed to render better table:', error);
+            el.createEl('div', { 
+                text: 'Error: Failed to render table. Check console for details.',
+                cls: 'better-table-error'
+            });
+        }
     }
 
     saveTableData(data: TableData, ctx: MarkdownPostProcessorContext, el: HTMLElement) {
-        const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-        if (!view) return;
+        try {
+            const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+            if (!view) {
+                console.warn('No active markdown view found');
+                return;
+            }
 
-        const editor = view.editor;
-        const tableCode = tableDataToCode(data);
-        
-        const info = ctx.getSectionInfo(el);
-        if (info) {
-            const startLine = info.lineStart;
-            const endLine = info.lineEnd;
+            const editor = view.editor;
+            const tableCode = tableDataToCode(data);
             
-            const newContent = `\`\`\`better-table\n${tableCode}\n\`\`\``;
-            editor.replaceRange(newContent, 
-                { line: startLine, ch: 0 },
-                { line: endLine, ch: editor.getLine(endLine).length }
-            );
+            const info = ctx.getSectionInfo(el);
+            if (info) {
+                const startLine = info.lineStart;
+                const endLine = info.lineEnd;
+                
+                const newContent = `\`\`\`better-table\n${tableCode}\n\`\`\``;
+                editor.replaceRange(newContent, 
+                    { line: startLine, ch: 0 },
+                    { line: endLine, ch: editor.getLine(endLine)?.length || 0 }
+                );
+            }
+        } catch (error) {
+            console.error('Failed to save table data:', error);
         }
     }
 
     addRow(data: TableData, ctx: MarkdownPostProcessorContext, el: HTMLElement) {
-        const newData = {
-            ...data,
-            rows: [...data.rows, Array(data.headers.length).fill('')]
-        };
-        this.saveTableData(newData, ctx, el);
+        try {
+            const newData: TableData = {
+                ...data,
+                rows: [...data.rows, Array(data.headers.length).fill('')]
+            };
+            this.saveTableData(newData, ctx, el);
+        } catch (error) {
+            console.error('Failed to add row:', error);
+        }
     }
 
     addColumn(data: TableData, ctx: MarkdownPostProcessorContext, el: HTMLElement) {
-        const newData = {
-            headers: [...data.headers, `Column ${data.headers.length + 1}`],
-            rows: data.rows.map(row => [...row, ''])
-        };
-        this.saveTableData(newData, ctx, el);
-    }
-
-    onunload() {
-        document.querySelectorAll('.better-table-wrapper').forEach(el => {
-            const root = (el as any).__reactRoot;
-            if (root) {
-                root.unmount();
-            }
-        });
-
-        if ((this as any).styleEl) {
-            (this as any).styleEl.remove();
+        try {
+            const newData: TableData = {
+                headers: [...data.headers, `Column ${data.headers.length + 1}`],
+                rows: data.rows.map(row => [...row, ''])
+            };
+            this.saveTableData(newData, ctx, el);
+        } catch (error) {
+            console.error('Failed to add column:', error);
         }
     }
 
@@ -138,7 +190,7 @@ export default class BetterTablePlugin extends Plugin {
     }
 }
 
-class SampleSettingTab extends PluginSettingTab {
+class BetterTableSettingTab extends PluginSettingTab {
     plugin: BetterTablePlugin;
 
     constructor(app: App, plugin: BetterTablePlugin) {
@@ -150,15 +202,9 @@ class SampleSettingTab extends PluginSettingTab {
         const { containerEl } = this;
         containerEl.empty();
 
-        new Setting(containerEl)
-            .setName('Better Tables Settings')
-            .setDesc('Configure your better tables experience')
-            .addText(text => text
-                .setPlaceholder('Enter your setting')
-                .setValue(this.plugin.settings.mySetting)
-                .onChange(async (value) => {
-                    this.plugin.settings.mySetting = value;
-                    await this.plugin.saveSettings();
-                }));
+        containerEl.createEl('p', { 
+            text: 'Configure your better tables experience',
+            cls: 'setting-item-description'
+        });
     }
 }
