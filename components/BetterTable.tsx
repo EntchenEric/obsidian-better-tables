@@ -18,33 +18,28 @@ export const BetterTable: React.FC<BetterTableProps> = ({ data, onSave, onAddRow
     const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const initialDataRef = useRef<TableData>(data);
 
-    // Only update data when component first mounts or when external data significantly changes
     useEffect(() => {
-        // Only update if this is a completely different table (different structure)
         const currentStructure = `${tableData.headers.length}-${tableData.rows.length}`;
         const newStructure = `${data.headers.length}-${data.rows.length}`;
-        
-        // Only sync if structure is very different or this is the initial load
+
         if (currentStructure !== newStructure && JSON.stringify(data) !== JSON.stringify(initialDataRef.current)) {
             setTableData(data);
             initialDataRef.current = data;
         }
-    }, [data]); // Removed tableData from dependencies to prevent loops
+    }, [data]);
 
-    // Simple auto-save - only save when NOT editing
     useEffect(() => {
         if (saveTimeoutRef.current) {
             clearTimeout(saveTimeoutRef.current);
         }
 
-        // Don't save if we're currently editing
         if (editingCell) {
             return;
         }
 
         saveTimeoutRef.current = setTimeout(() => {
             onSave(tableData);
-        }, 500); // Reduced to 500ms
+        }, 500);
 
         return () => {
             if (saveTimeoutRef.current) {
@@ -57,11 +52,9 @@ export const BetterTable: React.FC<BetterTableProps> = ({ data, onSave, onAddRow
         setTableData(prev => {
             const newData = { ...prev };
             if (rowIndex === -1) {
-                // Update header
                 newData.headers = [...prev.headers];
                 newData.headers[colIndex] = value;
             } else {
-                // Update cell
                 newData.rows = [...prev.rows];
                 newData.rows[rowIndex] = [...prev.rows[rowIndex]];
                 newData.rows[rowIndex][colIndex] = value;
@@ -86,15 +79,13 @@ export const BetterTable: React.FC<BetterTableProps> = ({ data, onSave, onAddRow
         }));
     }, [tableData.headers.length]);
 
-    // LOCAL add column
     const addColumnLocal = useCallback((targetRow: number, targetCol: number) => {
         setTableData(prev => {
             const newData = {
                 headers: [...prev.headers, `Column ${prev.headers.length + 1}`],
                 rows: prev.rows.map(row => [...row, ''])
             };
-            
-            // Focus after state update
+
             setTimeout(() => {
                 setEditingCell({ row: targetRow, col: targetCol });
                 const key = `${targetRow}-${targetCol}`;
@@ -104,19 +95,18 @@ export const BetterTable: React.FC<BetterTableProps> = ({ data, onSave, onAddRow
                     inputRef.select();
                 }
             }, 10);
-            
+
             return newData;
         });
     }, []);
 
-    // LOCAL add row
     const addRowLocal = useCallback((targetRow: number, targetCol: number) => {
         setTableData(prev => {
             const newData = {
                 ...prev,
                 rows: [...prev.rows, Array(prev.headers.length).fill('')]
             };
-            
+
             // Focus after state update
             setTimeout(() => {
                 setEditingCell({ row: targetRow, col: targetCol });
@@ -127,7 +117,7 @@ export const BetterTable: React.FC<BetterTableProps> = ({ data, onSave, onAddRow
                     inputRef.select();
                 }
             }, 10);
-            
+
             return newData;
         });
     }, []);
@@ -152,16 +142,14 @@ export const BetterTable: React.FC<BetterTableProps> = ({ data, onSave, onAddRow
         }
     }, []);
 
-    // EXCEL-LIKE NAVIGATION with TAB and ENTER
     const handleKeyDown = (e: React.KeyboardEvent, rowIndex: number, colIndex: number) => {
         if (e.key === 'Tab') {
             e.preventDefault();
-            
+
             const newTabHistory = [...navigationState.tabHistory, 1];
             const nextCol = colIndex + 1;
-            
+
             if (nextCol < tableData.headers.length) {
-                // Move to next column
                 setEditingCell({ row: rowIndex, col: nextCol });
                 setNavigationState({
                     tabHistory: newTabHistory,
@@ -169,7 +157,6 @@ export const BetterTable: React.FC<BetterTableProps> = ({ data, onSave, onAddRow
                 });
                 focusCell(rowIndex, nextCol);
             } else {
-                // CREATE NEW COLUMN locally
                 setNavigationState({
                     tabHistory: newTabHistory,
                     originalColumn: navigationState.tabHistory.length === 0 ? colIndex : navigationState.originalColumn
@@ -178,17 +165,15 @@ export const BetterTable: React.FC<BetterTableProps> = ({ data, onSave, onAddRow
             }
         } else if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            
+
             const targetCol = navigationState.tabHistory.length === 0 ? colIndex : navigationState.originalColumn;
             const nextRow = rowIndex + 1;
-            
+
             if (nextRow < tableData.rows.length) {
-                // Move to next row
                 setEditingCell({ row: nextRow, col: targetCol });
                 setNavigationState({ tabHistory: [], originalColumn: targetCol });
                 focusCell(nextRow, targetCol);
             } else {
-                // CREATE NEW ROW locally
                 setNavigationState({ tabHistory: [], originalColumn: targetCol });
                 addRowLocal(nextRow, targetCol);
             }
@@ -229,14 +214,14 @@ export const BetterTable: React.FC<BetterTableProps> = ({ data, onSave, onAddRow
     return (
         <div className="better-table-container">
             <div className="better-table-controls">
-                <button 
+                <button
                     onClick={onAddRow}
                     className="better-table-btn add-row-btn"
                 >
                     <span className="btn-icon">+</span>
                     <span className="btn-text">Row</span>
                 </button>
-                <button 
+                <button
                     onClick={onAddColumn}
                     className="better-table-btn add-col-btn"
                 >
@@ -244,13 +229,13 @@ export const BetterTable: React.FC<BetterTableProps> = ({ data, onSave, onAddRow
                     <span className="btn-text">Column</span>
                 </button>
             </div>
-            
+
             <div className="better-table-scroll-container">
                 <table className="better-table">
                     <thead>
                         <tr>
                             {tableData.headers.map((header, colIndex) => (
-                                <th 
+                                <th
                                     key={`header-${colIndex}`}
                                     className="better-table-header"
                                 >
@@ -263,12 +248,13 @@ export const BetterTable: React.FC<BetterTableProps> = ({ data, onSave, onAddRow
                                                 onBlur={handleCellBlur}
                                                 onKeyDown={(e) => handleKeyDown(e, -1, colIndex)}
                                                 className="better-table-input header-input"
+                                                //@ts-ignore
                                                 ref={el => inputRefs.current[`-1-${colIndex}`] = el}
                                                 autoFocus
                                                 placeholder="Column name..."
                                             />
                                         ) : (
-                                            <span 
+                                            <span
                                                 onClick={() => handleCellClick(-1, colIndex)}
                                                 onDoubleClick={() => handleDoubleClick(-1, colIndex)}
                                                 className="better-table-header-text"
@@ -297,7 +283,7 @@ export const BetterTable: React.FC<BetterTableProps> = ({ data, onSave, onAddRow
                         {tableData.rows.map((row, rowIndex) => (
                             <tr key={`row-${rowIndex}`}>
                                 {row.map((cell, colIndex) => (
-                                    <td 
+                                    <td
                                         key={`cell-${rowIndex}-${colIndex}`}
                                         className="better-table-cell"
                                     >
@@ -310,12 +296,13 @@ export const BetterTable: React.FC<BetterTableProps> = ({ data, onSave, onAddRow
                                                     onBlur={handleCellBlur}
                                                     onKeyDown={(e) => handleKeyDown(e, rowIndex, colIndex)}
                                                     className="better-table-input cell-input"
+                                                    //@ts-ignore
                                                     ref={el => inputRefs.current[`${rowIndex}-${colIndex}`] = el}
                                                     autoFocus
                                                     placeholder="Enter text..."
                                                 />
                                             ) : (
-                                                <span 
+                                                <span
                                                     onClick={() => handleCellClick(rowIndex, colIndex)}
                                                     onDoubleClick={() => handleDoubleClick(rowIndex, colIndex)}
                                                     className="better-table-cell-text"

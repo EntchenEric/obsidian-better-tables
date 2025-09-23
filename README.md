@@ -21,8 +21,6 @@ Transform your Obsidian tables into powerful, Excel-like editing experiences wit
 - **Vertical Scrolling**: Tables with `max-height: 70vh` and custom scrollbars
 - **Auto-Creation**: Dynamic row/column creation via keyboard navigation
 - **Inline Editing**: Click any cell to edit with beautiful focus indicators
-- **No Code View**: Clean table interface without markdown clutter
-- **Instant Creation**: Tables render immediately (no modal dialogs)
 
 ### ⌨️ **Keyboard Shortcuts**
 | Key | Action |
@@ -71,20 +69,6 @@ BetterTable replicates Excel's navigation perfectly:
 4. **TAB** (moves to B2)
 5. **ENTER** (moves to A3 - Excel behavior maintained)
 
-## 🎨 Design Features
-
-### Buttons
-- **Green "Add Row"** button with gradient and animations
-- **Blue "Add Column"** button with shimmer effects
-- Hover animations with 3D lifting effects
-
-### Table Interface
-- **Sticky headers** remain visible during scrolling
-- **Smooth scrolling** with custom scrollbars
-- **Hover effects** on cells and buttons
-- **Focus indicators** with glowing borders
-- **Delete buttons** appear on hover with scale animations
-
 ### Responsiveness
 - **Mobile optimized** with smaller buttons and padding
 - **Adaptive scrolling** (50vh on mobile, 70vh on desktop)
@@ -104,22 +88,7 @@ BetterTable replicates Excel's navigation perfectly:
 - **Smart Focus Management**: Maintains focus during dynamic creation
 - **Memory Cleanup**: Proper cleanup on plugin unload
 
-## 🐛 Troubleshooting
-
-### Table not appearing?
-- Ensure you're in Reading or Live Preview mode
-- Check if the code block starts with `better-table`
-- Try refreshing the note
-
-### Focus issues?
-- Make sure you're using the latest version
-- The plugin handles focus automatically during TAB/ENTER navigation
-
-### Performance issues?
-- Large tables (100+ rows) might be slower
-- Consider breaking very large tables into multiple smaller ones
-
-## 🔮 Roadmap
+## 🔮 Roadmap (unsorted)
 
 - [ ] **Table sorting** by clicking column headers
 - [ ] **Cell formatting** (bold, italic, colors)
@@ -141,13 +110,7 @@ Contributions are welcome! Please read our contributing guidelines:
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Obsidian Team** for the amazing platform
-- **React Team** for the excellent framework
-- **Community** for feedback and feature requests
+This project is licensed under the 0BSD license License - see the [LICENSE](LICENSE) file for details.
 
 ## 📞 Support
 

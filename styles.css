@@ -1,31 +1,323 @@
-/* BetterTable Plugin Styles */
+/* Better Table Container */
 .better-table-wrapper {
     margin: 16px 0;
+    border-radius: var(--radius-m);
+    overflow: hidden;
 }
 
 .better-table-container {
     font-family: var(--font-interface);
 }
 
-/* Ensure proper scrolling */
+.better-table-controls {
+    margin-bottom: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* BEAUTIFUL BUTTONS */
+.better-table-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--radius-m);
+    background: linear-gradient(135deg, var(--interactive-accent), var(--interactive-accent-hover));
+    color: var(--text-on-accent);
+    cursor: pointer;
+    font-size: var(--font-ui-medium);
+    font-weight: var(--font-weight-medium);
+    font-family: var(--font-interface);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.better-table-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s;
+}
+
+.better-table-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    filter: brightness(1.1);
+}
+
+.better-table-btn:hover::before {
+    left: 100%;
+}
+
+.better-table-btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.better-table-btn .btn-icon {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.better-table-btn .btn-text {
+    font-weight: var(--font-weight-medium);
+}
+
+.add-row-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.add-col-btn {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+/* SCROLLABLE TABLE CONTAINER */
 .better-table-scroll-container {
-    scrollbar-width: thin;
-    scrollbar-color: var(--background-modifier-border) var(--background-secondary);
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: auto;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-s);
+    background: var(--background-primary);
+    box-shadow: var(--shadow-s);
 }
 
-/* Focus states */
+/* Custom scrollbars */
+.better-table-scroll-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.better-table-scroll-container::-webkit-scrollbar-track {
+    background: var(--background-secondary);
+    border-radius: 4px;
+}
+
+.better-table-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--background-modifier-border);
+    border-radius: 4px;
+    border: 1px solid var(--background-secondary);
+}
+
+.better-table-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: var(--background-modifier-border-hover);
+}
+
+.better-table-scroll-container::-webkit-scrollbar-corner {
+    background: var(--background-secondary);
+}
+
+/* Table styling */
+.better-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 400px;
+    font-size: var(--font-ui-medium);
+}
+
+/* STICKY HEADERS for scrolling */
+.better-table-header {
+    background: var(--background-secondary);
+    border-bottom: 2px solid var(--background-modifier-border);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: inset 0 -1px 0 var(--background-modifier-border);
+}
+
+.better-table-header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    min-height: 48px;
+}
+
+.better-table-header-text {
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-normal);
+    cursor: pointer;
+    flex: 1;
+    padding: 6px 8px;
+    border-radius: var(--radius-xs);
+    transition: all 0.15s ease;
+    font-size: var(--font-ui-medium);
+}
+
+.better-table-header-text:hover {
+    background: var(--background-modifier-hover);
+    color: var(--text-accent);
+}
+
+/* Table cells */
+.better-table-cell {
+    border-bottom: 1px solid var(--background-modifier-border);
+    border-right: 1px solid var(--background-modifier-border);
+    padding: 0;
+    vertical-align: top;
+    transition: background-color 0.15s ease;
+}
+
+.better-table-cell:last-child {
+    border-right: none;
+}
+
+.better-table-cell:hover {
+    background: var(--background-modifier-hover);
+}
+
+.better-table-cell-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    min-height: 44px;
+}
+
+.better-table-cell-text {
+    cursor: text;
+    flex: 1;
+    padding: 6px 8px;
+    border-radius: var(--radius-xs);
+    transition: all 0.15s ease;
+    color: var(--text-normal);
+    line-height: 1.5;
+    min-height: 20px;
+}
+
+.better-table-cell-text:hover {
+    background: var(--background-modifier-hover);
+}
+
+.better-table-placeholder {
+    color: var(--text-faint);
+    font-style: italic;
+}
+
+/* BEAUTIFUL INLINE EDITING */
+.better-table-input {
+    width: 100%;
+    border: 2px solid var(--interactive-accent);
+    border-radius: var(--radius-s);
+    background: var(--background-primary);
+    color: var(--text-normal);
+    padding: 8px 12px;
+    font-size: var(--font-ui-medium);
+    font-family: var(--font-interface);
+    outline: none;
+    box-shadow: 0 0 0 4px var(--color-accent-2);
+    transition: all 0.2s ease;
+}
+
 .better-table-input:focus {
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px var(--accent-color-muted);
+    border-color: var(--interactive-accent-hover);
+    box-shadow: 0 0 0 4px var(--color-accent-2), 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
 }
 
-/* Mobile responsiveness */
+.better-table-input.header-input {
+    font-weight: var(--font-weight-semibold);
+    background: var(--background-secondary);
+    border-color: var(--interactive-accent);
+}
+
+.better-table-input.header-input:focus {
+    background: var(--background-primary);
+}
+
+/* Delete buttons with great UX */
+.better-table-delete-btn {
+    background: none;
+    border: none;
+    color: var(--text-faint);
+    cursor: pointer;
+    font-size: 18px;
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin-left: 8px;
+    opacity: 0;
+    transform: scale(0.8);
+}
+
+.better-table-header:hover .better-table-delete-btn,
+.better-table-cell:hover .better-table-delete-btn {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.better-table-delete-btn:hover {
+    background: var(--background-modifier-error);
+    color: var(--text-error);
+    transform: scale(1.1);
+}
+
+.better-table-delete-btn.row-delete {
+    margin-left: 4px;
+}
+
+/* Row highlighting */
+.better-table tbody tr:hover {
+    background: var(--background-modifier-hover-alt);
+}
+
+/* Mobile responsive */
 @media (max-width: 768px) {
     .better-table-scroll-container {
         max-height: 50vh;
     }
-    
+
     .better-table {
         min-width: 300px;
+    }
+
+    .better-table-header-content,
+    .better-table-cell-content {
+        padding: 8px 12px;
+        min-height: 40px;
+    }
+
+    .better-table-btn {
+        padding: 6px 12px;
+        font-size: var(--font-ui-small);
+    }
+}
+
+/* Focus indicators for accessibility */
+.better-table-header-text:focus,
+.better-table-cell-text:focus {
+    outline: 2px solid var(--interactive-accent);
+    outline-offset: 2px;
+}
+
+/* Animation for new rows/columns */
+.better-table tr,
+.better-table th,
+.better-table td {
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
