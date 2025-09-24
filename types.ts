@@ -15,6 +15,3 @@ export interface BetterTableProps {
     onAddColumn: () => void;
 }
 
-export interface MyPluginSettings {
-    mySetting: string;
-}

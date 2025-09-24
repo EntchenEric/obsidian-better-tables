@@ -1,11 +1,11 @@
 {
 	"id": "better-tables",
 	"name": "Better Tables",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"minAppVersion": "0.15.0",
 	"description": "Create Enhanced, Excel like Tables.",
 	"author": "EntchenEric",
 	"authorUrl": "https://entcheneric.com",
-	"fundingUrl": "paypal.me/WendermanYT",
+	"fundingUrl": "buymeacoffee.com/EntchenEric",
 	"isDesktopOnly": false
 }

@@ -1,14 +1,11 @@
-import { App, Editor, MarkdownView, Plugin, PluginSettingTab, Setting, MarkdownPostProcessorContext, MarkdownRenderChild } from 'obsidian';
+import { App, Editor, MarkdownView, Plugin, MarkdownPostProcessorContext, MarkdownRenderChild } from 'obsidian';
 import * as React from 'react';
 import { Root, createRoot } from 'react-dom/client';
 import { BetterTable } from './components/BetterTable';
 import { AppContext } from './contexts/AppContext';
-import { TableData, MyPluginSettings } from './types';
+import { TableData } from './types';
 import { parseTableData, tableDataToCode } from './utils/tableUtils';
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-    mySetting: 'default'
-};
 
 class BetterTableRenderChild extends MarkdownRenderChild {
     private root: Root;
@@ -68,10 +65,8 @@ class BetterTableRenderChild extends MarkdownRenderChild {
 }
 
 export default class BetterTablePlugin extends Plugin {
-    settings: MyPluginSettings;
 
     async onload() {
-        await this.loadSettings();
 
         this.registerMarkdownCodeBlockProcessor('better-table', (source, el, ctx) => {
             this.renderBetterTable(source, el, ctx);
@@ -98,7 +93,6 @@ export default class BetterTablePlugin extends Plugin {
             }
         });
 
-        this.addSettingTab(new BetterTableSettingTab(this.app, this));
     }
 
     private refreshView(view: MarkdownView) {
@@ -181,30 +175,5 @@ export default class BetterTablePlugin extends Plugin {
         }
     }
 
-    async loadSettings() {
-        this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-    }
-
-    async saveSettings() {
-        await this.saveData(this.settings);
-    }
 }
 
-class BetterTableSettingTab extends PluginSettingTab {
-    plugin: BetterTablePlugin;
-
-    constructor(app: App, plugin: BetterTablePlugin) {
-        super(app, plugin);
-        this.plugin = plugin;
-    }
-
-    display(): void {
-        const { containerEl } = this;
-        containerEl.empty();
-
-        containerEl.createEl('p', { 
-            text: 'Configure your better tables experience',
-            cls: 'setting-item-description'
-        });
-    }
-}
