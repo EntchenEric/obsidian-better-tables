@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, Plugin, MarkdownPostProcessorContext, MarkdownRenderChild } from 'obsidian';
+import { Editor, MarkdownView, Plugin, MarkdownPostProcessorContext, MarkdownRenderChild } from 'obsidian';
 import * as React from 'react';
 import { Root, createRoot } from 'react-dom/client';
 import { BetterTable } from './components/BetterTable';
@@ -66,7 +66,7 @@ class BetterTableRenderChild extends MarkdownRenderChild {
 
 export default class BetterTablePlugin extends Plugin {
 
-    async onload() {
+    onload() {
 
         this.registerMarkdownCodeBlockProcessor('better-table', (source, el, ctx) => {
             this.renderBetterTable(source, el, ctx);
@@ -74,7 +74,7 @@ export default class BetterTablePlugin extends Plugin {
 
         this.addCommand({
             id: 'create-better-table',
-            name: 'Create Better Table',
+            name: 'Create better table',
             editorCallback: (editor: Editor, view: MarkdownView) => {
                 try {
                     const defaultData: TableData = {
@@ -98,11 +98,11 @@ export default class BetterTablePlugin extends Plugin {
     private refreshView(view: MarkdownView) {
         const currentMode = view.getMode();
         if (currentMode === 'source') {
-            view.setEphemeralState({ focus: true });
+            void view.setEphemeralState({ focus: true });
             requestAnimationFrame(() => {
-                view.setState({ mode: 'preview' }, { history: false });
+                void view.setState({ mode: 'preview' }, { history: false });
                 requestAnimationFrame(() => {
-                    view.setState({ mode: 'source' }, { history: false });
+                    void view.setState({ mode: 'source' }, { history: false });
                 });
             });
         }

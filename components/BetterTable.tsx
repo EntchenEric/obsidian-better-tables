@@ -209,7 +209,7 @@ export const BetterTable: React.FC<BetterTableProps> = ({ data, onSave, onAddRow
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent, rowIndex: number, colIndex: number) => {
         switch (e.key) {
-            case 'Tab':
+            case 'Tab': {
                 e.preventDefault();
                 const newTabHistory = [...navigationState.tabHistory, 1];
                 const nextCol = colIndex + 1;
@@ -229,8 +229,9 @@ export const BetterTable: React.FC<BetterTableProps> = ({ data, onSave, onAddRow
                     addColumnLocal(rowIndex, nextCol);
                 }
                 break;
+            }
 
-            case 'Enter':
+            case 'Enter': {
                 if (!e.shiftKey) {
                     e.preventDefault();
                     const targetCol = navigationState.tabHistory.length === 0 ? colIndex : navigationState.originalColumn;
@@ -246,38 +247,43 @@ export const BetterTable: React.FC<BetterTableProps> = ({ data, onSave, onAddRow
                     }
                 }
                 break;
+            }
 
             case 'Escape':
                 setEditingCell(null);
                 break;
 
-            case 'ArrowUp':
+            case 'ArrowUp': {
                 e.preventDefault();
                 const prevRow = Math.max(-1, rowIndex - 1);
                 setEditingCell({ row: prevRow, col: colIndex });
                 focusCell(prevRow, colIndex);
                 break;
+            }
 
-            case 'ArrowDown':
+            case 'ArrowDown': {
                 e.preventDefault();
                 const nextRowDown = Math.min(tableData.rows.length - 1, rowIndex + 1);
                 setEditingCell({ row: nextRowDown, col: colIndex });
                 focusCell(nextRowDown, colIndex);
                 break;
+            }
 
-            case 'ArrowLeft':
+            case 'ArrowLeft': {
                 e.preventDefault();
                 const prevCol = Math.max(0, colIndex - 1);
                 setEditingCell({ row: rowIndex, col: prevCol });
                 focusCell(rowIndex, prevCol);
                 break;
+            }
 
-            case 'ArrowRight':
+            case 'ArrowRight': {
                 e.preventDefault();
                 const nextColRight = Math.min(tableData.headers.length - 1, colIndex + 1);
                 setEditingCell({ row: rowIndex, col: nextColRight });
                 focusCell(rowIndex, nextColRight);
                 break;
+            }
         }
     }, [navigationState, tableData.headers.length, tableData.rows.length, focusCell, addColumnLocal, addRowLocal]);
 
