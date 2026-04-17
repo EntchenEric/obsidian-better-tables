@@ -6,25 +6,46 @@
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-    "version": "node version-bump.mjs && git add manifest.json versions.json"
+    "version": "node version-bump.mjs && git add manifest.json versions.json",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.29.0",
+    "@babel/preset-env": "^7.29.2",
+    "@babel/preset-react": "^7.28.5",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/jest": "^30.0.0",
     "@types/node": "^16.11.6",
-    "@types/react": "^18.0.21",
-    "@types/react-dom": "^18.0.6",
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7",
     "@typescript-eslint/eslint-plugin": "5.29.0",
     "@typescript-eslint/parser": "5.29.0",
+    "babel-jest": "^30.3.0",
     "builtin-modules": "3.3.0",
     "esbuild": "0.17.3",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
     "obsidian": "latest",
+    "ts-jest": "^29.4.9",
     "tslib": "2.4.0",
-    "typescript": "4.7.4"
+    "typescript": "^4.7.4"
   },
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EntchenEric/obsidian-better-tables.git"
+  },
+  "bugs": {
+    "url": "https://github.com/EntchenEric/obsidian-better-tables/issues"
+  },
+  "homepage": "https://github.com/EntchenEric/obsidian-better-tables#readme"
 }
